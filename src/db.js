@@ -38,10 +38,17 @@ sequelize.models = Object.fromEntries(capsEntries);
 
 //relacionamos
 
-const { User, Product, Turner, Calendary } = sequelize.models;
+const { User, Product, Turner, Calendary, FavoriteProducts } = sequelize.models;
 
-User.belongsToMany(Product, { through: "FavoriteProducts" });
-Product.belongsToMany(User, { through: "FavoriteProducts" });
+User.hasMany(Product); //User tiene muchos Productos
+User.belongsToMany(Product, {
+  through: FavoriteProducts,
+  foreignKey: "userId",
+});
+Product.belongsToMany(User, {
+  through: FavoriteProducts,
+  foreignKey: "productId",
+});
 User.hasMany(Turner);
 Calendary.hasMany(Turner);
 Turner.belongsTo(User);

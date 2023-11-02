@@ -1,5 +1,6 @@
 const express = require("express");
 const morgan = require("morgan");
+// const { verifyToken } = require("../src/middleware/token.middleware");
 const mainRouter = require("./routes");
 
 const app = express();
