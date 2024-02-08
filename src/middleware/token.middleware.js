@@ -11,7 +11,7 @@ const verifyToken = async (req, res, next) => {
     const decodedToken = await jwt.verify(token, JWT_SING);
 
     // Verifica si el usuario asociado con el token existe en la base de datos
-    const user = await User.findByPk(decodedToken.id);
+    const user = await User.findOne({ where: { id: decodedToken.userId } });
     // console.log("hlanda", decodedToken);
     if (!user) {
       return res.status(401).send({ msg: "Usuario no encontrado" });
