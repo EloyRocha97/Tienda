@@ -101,10 +101,50 @@ const getUserId = async (req, res) => {
   }
 };
 
+const deleteUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    let user = await User.destroy({
+      where: {
+        id: id,
+      },
+    });
+    return res.status(200).json({ borrado: true, user });
+  } catch (error) {
+    res.status(400).send("No se pude eliminar al perrito");
+  }
+};
+
+const updateUser = async (req, res) => {
+  const { id } = req.params;
+  const user = req.body;
+
+  try {
+    // Elimino la contraseña del objeto user antes de actualizar
+    const { password, ...updatedUser } = user;
+    //hasheéar la contraseña antes de actualizar
+    if (password) {
+      const saltRounds = 10;
+      updatedUser.password = await bcrypt.hash(password, saltRounds);
+    }
+    // Actualizar el usuario en la base de datos
+    await User.update(updatedUser, {
+      where: { id: id },
+    });
+    return res.json({ cambiado: true });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(400).send("No se pudo editar el usuario");
+  }
+};
+
 module.exports = {
   authUser,
   login,
   protected,
   getUsers,
   getUserId,
+  deleteUser,
+  updateUser,
 };

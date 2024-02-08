@@ -1,6 +1,7 @@
 const { Product } = require("../db");
 const { Op } = require("sequelize");
 const { createProduct } = require("../Controllers/products.controller");
+const bcrypt = require("bcryptjs");
 
 const getProducts = async (req, res) => {
   const { name, types, price } = req.query;
@@ -65,8 +66,48 @@ const createAllProducts = async (req, res) => {
   }
 };
 
+const deleteProducts = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    let user = await Product.destroy({
+      where: {
+        id: id,
+      },
+    });
+    return res.status(200).json({ borrado: true, user });
+  } catch (error) {
+    res.status(400).send("No se pude eliminar al producto");
+  }
+};
+
+const updateProduct = async (req, res) => {
+  const { id } = req.params;
+  const product = req.body;
+
+  try {
+    // Elimino la contraseña del objeto user antes de actualizar
+    const { password, ...updatedProduct } = product;
+    //hasheéar la contraseña antes de actualizar
+    if (password) {
+      const saltRounds = 10;
+      updatedProduct.password = await bcrypt.hash(password, saltRounds);
+    }
+    // Actualizar el usuario en la base de datos
+    await Product.update(updatedProduct, {
+      where: { id: id },
+    });
+    return res.json({ cambiado: true });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(400).send("No se pudo editar el producto");
+  }
+};
+
 module.exports = {
   getProducts,
   getProductId,
   createAllProducts,
+  deleteProducts,
+  updateProduct,
 };
